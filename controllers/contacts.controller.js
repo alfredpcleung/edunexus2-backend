@@ -1,3 +1,4 @@
+// ...existing code...
 const Contact = require('../models/contact.model');
 const createError = require('http-errors');
 
@@ -22,6 +23,11 @@ exports.getById = async (req, res, next) => {
 // POST create new contact
 exports.create = async (req, res, next) => {
   try {
+    // ...existing code...
+    const { title, description, review } = req.body;
+    if (!title || !description || !review) {
+      return next(createError(400, 'title, description, and review are required'));
+    }
     const data = { ...req.body, owner: req.user.userId };
     const newContact = await Contact.create(data);
     res.status(201).json(newContact);
@@ -36,6 +42,10 @@ exports.updateById = async (req, res, next) => {
     if (!contact) return next(createError(404, 'Contact not found'));
     if (!(req.user.isAdmin || String(contact.owner) === req.user.userId)) {
       return next(createError(403, 'Forbidden'));
+    }
+    const { title, description, review } = req.body;
+    if (!title || !description || !review) {
+      return next(createError(400, 'title, description, and review are required'));
     }
     const updated = await Contact.findByIdAndUpdate(
       req.params.id, req.body, { new: true, runValidators: true }

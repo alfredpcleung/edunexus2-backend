@@ -53,6 +53,11 @@ exports.updateById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(createError(400, 'Invalid ID format'));
     }
+    // ...existing code...
+    // Only allow if admin or editing own record
+    if (!(req.user.isAdmin || String(req.user.userId) === String(id))) {
+      return next(createError(403, 'Forbidden'));
+    }
     // always refresh the updated field
     req.body.updated = new Date();
     const updated = await User.findByIdAndUpdate(
@@ -73,6 +78,11 @@ exports.removeById = async (req, res, next) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return next(createError(400, 'Invalid ID format'));
+    }
+    // ...existing code...
+    // Only allow if admin or deleting own record
+    if (!(req.user.isAdmin || String(req.user.userId) === String(id))) {
+      return next(createError(403, 'Forbidden'));
     }
     const deleted = await User.findByIdAndDelete(id);
     if (!deleted) return next(createError(404, 'User not found'));

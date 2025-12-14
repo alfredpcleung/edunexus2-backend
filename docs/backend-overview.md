@@ -1,17 +1,18 @@
 
-# Backend Overview (Updated for EdNexus)
 
-This documentation provides a reference for the backend API, data models, authentication, and business logic. Share this with the frontend team for integration.
+# Edunexus2 Backend Overview
+
+This backend powers the Edunexus2 platform, providing a RESTful API for managing users, contacts, projects, and services. It uses Node.js, Express, and MongoDB Atlas, with JWT-based authentication and role-based authorization.
 
 ---
 
 ## Authentication & Authorization
 
-- JWT-based authentication.
+- JWT-based authentication for secure access.
 - Register and login return a JWT token (expires in 24h).
 - Protected routes require an Authorization header:
   `Authorization: Bearer <token>`
-- Middleware validates token and attaches user info to `req.user` (includes userId, email, isAdmin).
+- Middleware validates token and attaches user info to `req.user` (userId, email, isAdmin).
 - Only the resource owner or an admin (isAdmin: true) can update/delete resources.
 
 ---
@@ -19,7 +20,7 @@ This documentation provides a reference for the backend API, data models, authen
 ## Data Models
 
 ### User
-```js
+```
 {
   firstname: String, required
   lastname: String, required
@@ -34,7 +35,7 @@ This documentation provides a reference for the backend API, data models, authen
 ```
 
 ### Project
-```js
+```
 {
   title: String, required
   completion: Date, required
@@ -46,7 +47,7 @@ This documentation provides a reference for the backend API, data models, authen
 ```
 
 ### Contact
-```js
+```
 {
   firstname: String, required
   lastname: String, required
@@ -57,8 +58,8 @@ This documentation provides a reference for the backend API, data models, authen
 }
 ```
 
-### Service (Course/Review)
-```js
+### Service
+```
 {
   title: String, required
   description: String, required
@@ -79,8 +80,6 @@ This documentation provides a reference for the backend API, data models, authen
 |--------|--------------|---------------------|-------------------------------|--------------------------------|
 | POST   | /auth/signup | Register new user   | firstname, lastname, email, password | { message, token, user } |
 | POST   | /auth/login  | Login user          | email, password               | { message, token, user }       |
-
-- The token and user object include isAdmin.
 
 ---
 
@@ -108,9 +107,6 @@ This documentation provides a reference for the backend API, data models, authen
 | DELETE | /projects/:id  | Delete project      | Yes  | :id         | {msg}    |
 | DELETE | /projects/     | Delete all projects | Yes  |             | {msg}    |
 
-- Only the owner or an admin can update/delete a project.
-- owner is set automatically to the authenticated user on creation.
-
 ---
 
 ### Contacts
@@ -124,12 +120,9 @@ This documentation provides a reference for the backend API, data models, authen
 | DELETE | /contacts/:id  | Delete contact      | Yes  | :id         | {msg}    |
 | DELETE | /contacts/     | Delete all contacts | Yes  |             | {msg}    |
 
-- Only the owner or an admin can update/delete a contact.
-- owner is set automatically to the authenticated user on creation.
-
 ---
 
-### Services (Courses/Reviews)
+### Services
 
 | Method | Route           | Description         | Auth | Body/Params | Response |
 |--------|----------------|---------------------|------|-------------|----------|
@@ -139,10 +132,6 @@ This documentation provides a reference for the backend API, data models, authen
 | PUT    | /services/:id  | Update service      | Yes  | :id, fields | service  |
 | DELETE | /services/:id  | Delete service      | Yes  | :id         | {msg}    |
 | DELETE | /services/     | Delete all services | Yes  |             | {msg}    |
-
-- Only the owner or an admin can update/delete a service.
-- owner is set automatically to the authenticated user on creation.
-- review is an optional field for course reviews.
 
 ---
 
@@ -154,7 +143,7 @@ This documentation provides a reference for the backend API, data models, authen
 - Only authenticated users can create, update, or delete projects, contacts, and services.
 - Only the resource owner or an admin can update/delete resources.
 - Error responses use standard HTTP status codes and JSON error messages.
-- Set isAdmin manually in the database for initial admin users.
+- Set isAdmin manually in the database for initial admin users if needed.
 
 ---
 
