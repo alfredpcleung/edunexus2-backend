@@ -23,30 +23,42 @@ exports.getById = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+
 // POST create
 exports.create = async (req, res, next) => {
   try {
-    const newProject = await Project.create(req.body);
+    const data = { ...req.body, owner: req.user.userId };
+    const newProject = await Project.create(data);
     res.status(201).json(newProject);
   } catch (err) { next(err); }
 };
 
+
 // PUT update
 exports.updateById = async (req, res, next) => {
   try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return next(createError(404, 'Project not found'));
+    if (!(req.user.isAdmin || String(project.owner) === req.user.userId)) {
+      return next(createError(403, 'Forbidden'));
+    }
     const updated = await Project.findByIdAndUpdate(
       req.params.id, req.body, { new: true, runValidators: true }
     );
-    if (!updated) return next(createError(404, 'Project not found'));
     res.json(updated);
   } catch (err) { next(err); }
 };
 
+
 // DELETE by ID
 exports.removeById = async (req, res, next) => {
   try {
-    const deleted = await Project.findByIdAndDelete(req.params.id);
-    if (!deleted) return next(createError(404, 'Project not found'));
+    const project = await Project.findById(req.params.id);
+    if (!project) return next(createError(404, 'Project not found'));
+    if (!(req.user.isAdmin || String(project.owner) === req.user.userId)) {
+      return next(createError(403, 'Forbidden'));
+    }
+    await Project.findByIdAndDelete(req.params.id);
     res.json({ message: 'Project deleted' });
   } catch (err) { next(err); }
 };

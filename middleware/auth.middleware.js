@@ -28,7 +28,8 @@ const authMiddleware = (req, res, next) => {
     // Attach user info to request
     req.user = {
       userId: decoded.userId,
-      email: decoded.email
+      email: decoded.email,
+      isAdmin: decoded.isAdmin // will be set in token if present
     };
 
     next();

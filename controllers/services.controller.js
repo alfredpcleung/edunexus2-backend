@@ -23,30 +23,42 @@ exports.getById = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+
 // POST create
 exports.create = async (req, res, next) => {
   try {
-    const newService = await Service.create(req.body);
+    const data = { ...req.body, owner: req.user.userId };
+    const newService = await Service.create(data);
     res.status(201).json(newService);
   } catch (err) { next(err); }
 };
 
+
 // PUT update
 exports.updateById = async (req, res, next) => {
   try {
+    const service = await Service.findById(req.params.id);
+    if (!service) return next(createError(404, 'Service not found'));
+    if (!(req.user.isAdmin || String(service.owner) === req.user.userId)) {
+      return next(createError(403, 'Forbidden'));
+    }
     const updated = await Service.findByIdAndUpdate(
       req.params.id, req.body, { new: true, runValidators: true }
     );
-    if (!updated) return next(createError(404, 'Service not found'));
     res.json(updated);
   } catch (err) { next(err); }
 };
 
+
 // DELETE by ID
 exports.removeById = async (req, res, next) => {
   try {
-    const deleted = await Service.findByIdAndDelete(req.params.id);
-    if (!deleted) return next(createError(404, 'Service not found'));
+    const service = await Service.findById(req.params.id);
+    if (!service) return next(createError(404, 'Service not found'));
+    if (!(req.user.isAdmin || String(service.owner) === req.user.userId)) {
+      return next(createError(403, 'Forbidden'));
+    }
+    await Service.findByIdAndDelete(req.params.id);
     res.json({ message: 'Service deleted' });
   } catch (err) { next(err); }
 };

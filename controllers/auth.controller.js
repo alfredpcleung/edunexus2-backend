@@ -35,7 +35,7 @@ exports.signup = async (req, res, next) => {
 
     // Generate JWT token (24 hours expiration)
     const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
+      { userId: newUser._id, email: newUser.email, isAdmin: newUser.isAdmin },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -49,6 +49,7 @@ exports.signup = async (req, res, next) => {
         firstname: newUser.firstname,
         lastname: newUser.lastname,
         email: newUser.email,
+        isAdmin: newUser.isAdmin,
         created: newUser.created
       }
     });
@@ -81,7 +82,7 @@ exports.login = async (req, res, next) => {
 
     // Generate JWT token (24 hours expiration)
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, email: user.email, isAdmin: user.isAdmin },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
@@ -95,6 +96,7 @@ exports.login = async (req, res, next) => {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
+        isAdmin: user.isAdmin,
         created: user.created
       }
     });
