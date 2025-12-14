@@ -19,16 +19,12 @@ exports.signup = async (req, res, next) => {
       return next(createError(409, 'Email already registered'));
     }
 
-    // Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Create new user
+    // Create new user (let Mongoose pre-save hook hash the password)
     const newUser = await User.create({
       firstname,
       lastname,
       email,
-      password: hashedPassword,
+      password,
       created: new Date(),
       updated: new Date()
     });
