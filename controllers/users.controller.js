@@ -6,7 +6,13 @@ const createError = require('http-errors');
 exports.getAll = async (req, res, next) => {
   try {
     const users = await User.find();
-    res.json(users);
+    // Remove password from each user object
+    const usersSafe = users.map(user => {
+      const obj = user.toObject();
+      delete obj.password;
+      return obj;
+    });
+    res.json(usersSafe);
   } catch (err) { next(err); }
 };
 
@@ -19,7 +25,9 @@ exports.getById = async (req, res, next) => {
     }
     const user = await User.findById(id);
     if (!user) return next(createError(404, 'User not found'));
-    res.json(user);
+    const userSafe = user.toObject();
+    delete userSafe.password;
+    res.json(userSafe);
   } catch (err) { next(err); }
 };
 
@@ -32,7 +40,9 @@ exports.create = async (req, res, next) => {
       created: new Date(),
       updated: new Date()
     });
-    res.status(201).json(newUser);
+    const userSafe = newUser.toObject();
+    delete userSafe.password;
+    res.status(201).json(userSafe);
   } catch (err) { next(err); }
 };
 
@@ -51,7 +61,9 @@ exports.updateById = async (req, res, next) => {
       { new: true, runValidators: true }
     );
     if (!updated) return next(createError(404, 'User not found'));
-    res.json(updated);
+    const userSafe = updated.toObject();
+    delete userSafe.password;
+    res.json(userSafe);
   } catch (err) { next(err); }
 };
 
